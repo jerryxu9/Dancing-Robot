@@ -1,0 +1,39 @@
+import board
+import displayio
+import terminalio
+import sys
+from lib.adafruit_display_text import label
+from lib.adafruit_st7735r import ST7735R
+import time
+
+class Display():
+    def __init__(self):
+        self.group = displayio.Group()
+        self.title_grid = None
+        self.bitMapFile = []
+        
+        self.display_image()
+        
+
+    def display_image(self):
+        displayio.release_displays()
+        display = board.SPI()
+        display_bus = displayio.FourWire(display, command=board.D7, chip_select=board.D10, reset=board.D9)
+        display_ = ST7735R(display_bus, width=128, height=128, rowstart=5, colstart=2)
+
+        self.initFrames()
+        display_.show(self.group)
+        
+	self.group.append(self.bitMapFile[0])
+
+        while True:
+            pass
+
+
+    def initFrames(self):
+        
+         currBitMapFile = open("fileName".bmp", "rb")
+         bitmap = displayio.OnDiskBitmap(currBitMapFile)
+         self.bitMapFile.append(displayio.TileGrid(bitmap, pixel_shader=displayio.ColorConverter()))
+                
+Display()

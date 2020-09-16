@@ -1,0 +1,74 @@
+import os 
+import adafruit_sdcard
+import board
+import busio
+import digitalio
+import storage
+
+import time
+import displayio
+import terminalio
+import sys
+from lib.adafruit_display_text import label
+from lib.adafruit_st7735r import ST7735R
+from lib.st7789 import ST7789
+
+
+class Display():
+    def __init__(self):
+        spi = board.SPI()
+
+        self.group = displayio.Group()
+        self.title_grid = None
+        self.numOfFrames = 21
+        self.bitMapFile = []
+        
+        # Use any pin that is not taken by SPI
+        SD_CS = board.D12
+
+        displayio.release_displays()
+        display = spi
+        display_bus = displayio.FourWire(display, command=board.D7, chip_select=board.D10, reset=board.D9)
+        self.display_ = ST7735R(display_bus, width=128, height=128, rowstart=1, colstart=2)
+
+        cs = digitalio.DigitalInOut(SD_CS)
+        sdcard = adafruit_sdcard.SDCard(spi, cs)
+        vfs = storage.VfsFat(sdcard)
+        storage.mount(vfs, "/sd")      
+        
+
+        self.displayImage()
+        # Connect to the card and mount the filesystem.
+
+    def displayImage(self):
+        
+        self.initFrames()
+        self.display_.show(self.group)
+        
+        while True:
+            
+            self.group.append(self.bitMapFile[0])
+            
+            for i in range (0, self.numOfFrames - 2):
+                self.group.remove(self.bitMapFile[i])
+                self.group.append(self.bitMapFile[i + 1])
+                time.sleep(0.1)
+            
+            self.group.remove(self.bitMapFile[self.numOfFrames - 2])
+
+    #initializes the frames of the video
+    def initFrames(self):
+        
+        for file in sorted(os.listdir("/sd/moonwalk")):
+            os.rename("cp " + str(file), "/video/" + str(file))
+            os.rename("cp " + str(file), "/video/" + str(file))
+            
+        for i in range (0, self.numOfFrames - 1):
+            currBitMapFile = open("/video/" + str(i) + ".bmp", "rb")
+            bitmap = displayio.OnDiskBitmap(currBitMapFile)
+            self.bitMapFile.append(displayio.TileGrid(bitmap, pixel_shader=displayio.ColorConverter()))
+        
+        
+        
+        
+Display()

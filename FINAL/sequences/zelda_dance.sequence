@@ -1,0 +1,14 @@
+rotate:D5:1:48
+rotate:SCL:1:32
+
+rotate:SDA,D0:1:120
+
+rotate:SCL:1:90
+rotate:D5:1:90
+
+rotate:SDA,D0:2:90
+
+rotate:D5,SDA:0.2:90
+rotate:D5,SDA:0.2:110
+rotate:D5,SDA:0.2:90
+rotate:D5,SDA:0.2:90
